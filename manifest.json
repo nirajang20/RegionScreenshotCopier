@@ -1,0 +1,32 @@
+{
+  "name": "Region Screenshot Copier",
+  "description": "Take a region screenshot and copy to clipboard",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs",
+    "storage",
+    "clipboardWrite"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "commands": {
+    "copy_region_screenshot": {
+      "suggested_key": { "mac": "Command+Shift+1" },
+      "description": "Take a region screenshot and copy to clipboard"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
