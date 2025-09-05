@@ -2,6 +2,8 @@
 
 **Region Screenshot Copier** is a lightweight Chrome extension that allows you to capture a **custom region of any webpage** and copy it directly to your clipboard. No files are saved—just copy and paste anywhere. Designed for **Mac users** with a default shortcut `⌘ + ⇧ + 1`, but you can customize the region once and reuse it anytime.
 
+GitHub repository: [https://github.com/nirajang20/RegionScreenshotCopier](https://github.com/nirajang20/RegionScreenshotCopier)
+
 ---
 
 ## Features
@@ -20,7 +22,7 @@
 1. Clone or download the repository:
 
 ```bash
-git clone https://github.com/yourusername/RegionScreenshotCopier.git
+git clone https://github.com/nirajang20/RegionScreenshotCopier.git
 ```
 
 2. Open Chrome and go to `chrome://extensions/`.
