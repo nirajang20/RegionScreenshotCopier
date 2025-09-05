@@ -19,7 +19,10 @@
   },
   "commands": {
     "copy_region_screenshot": {
-      "suggested_key": { "mac": "Command+Shift+1" },
+      "suggested_key": {
+        "default": "Ctrl+Shift+1", 
+        "mac": "Command+Shift+1"    
+      },
       "description": "Take a region screenshot and copy to clipboard"
     }
   },
