@@ -58,7 +58,16 @@ function injectToast(tabId, message, tone = "info") {
         ensureToastStyles();
         const toast = document.createElement("div");
         toast.className = `rsc-toast ${tone}`;
-        toast.textContent = text;
+        const icon = document.createElement("div");
+        icon.className = `rsc-toast-icon ${tone}`;
+        icon.innerHTML = `
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M5 10.5l3.2 3.2L15 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>`;
+        const label = document.createElement("div");
+        label.className = "rsc-toast-text";
+        label.textContent = text;
+        toast.append(icon, label);
         document.body.appendChild(toast);
         requestAnimationFrame(() => toast.classList.add("visible"));
         setTimeout(() => toast.classList.remove("visible"), 1800);
@@ -86,11 +95,37 @@ function injectToast(tabId, message, tone = "info") {
             z-index: 2147483647;
             min-width: 220px;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 10px;
           }
           .rsc-toast.visible { opacity: 1; transform: translateY(0) scale(1); }
           .rsc-toast.success { border-color: rgba(16, 185, 129, 0.55); box-shadow: 0 12px 32px rgba(16, 185, 129, 0.22); }
           .rsc-toast.info { border-color: rgba(102, 166, 255, 0.55); box-shadow: 0 12px 32px rgba(102, 166, 255, 0.25); }
           .rsc-toast.warn { border-color: rgba(244, 144, 46, 0.6); box-shadow: 0 12px 32px rgba(244, 144, 46, 0.25); }
+          .rsc-toast-text { flex: 1; }
+          .rsc-toast-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+            transform: scale(0.86);
+            opacity: 0;
+            animation: rsc-icon-pop 200ms ease forwards;
+          }
+          .rsc-toast-icon.success { background: linear-gradient(135deg, #22c55e, #4ade80); }
+          .rsc-toast-icon.info { background: linear-gradient(135deg, #60a5fa, #93c5fd); }
+          .rsc-toast-icon.warn { background: linear-gradient(135deg, #fbbf24, #f97316); }
+          .rsc-toast-icon svg {
+            width: 16px;
+            height: 16px;
+            stroke-dasharray: 26;
+            stroke-dashoffset: 26;
+            animation: rsc-check-draw 360ms ease forwards 100ms;
+          }
           .rsc-toast-progress {
             position: absolute;
             left: 0;
@@ -105,6 +140,14 @@ function injectToast(tabId, message, tone = "info") {
           @keyframes rsc-progress {
             from { transform: scaleX(1); }
             to { transform: scaleX(0); }
+          }
+          @keyframes rsc-icon-pop {
+            from { transform: scale(0.6); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+          }
+          @keyframes rsc-check-draw {
+            from { stroke-dashoffset: 26; }
+            to { stroke-dashoffset: 0; }
           }
         `;
         document.head.appendChild(style);
@@ -141,11 +184,21 @@ function processScreenshot(dataUrl, region) {
     ensureToastStyles();
     const toast = document.createElement("div");
     toast.className = `rsc-toast ${tone}`;
-    toast.textContent = text;
+
+    const icon = document.createElement("div");
+    icon.className = `rsc-toast-icon ${tone}`;
+    icon.innerHTML = `
+      <svg viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M5 10.5l3.2 3.2L15 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>`;
+
+    const label = document.createElement("div");
+    label.className = "rsc-toast-text";
+    label.textContent = text;
 
     const progress = document.createElement("div");
     progress.className = "rsc-toast-progress";
-    toast.appendChild(progress);
+    toast.append(icon, label, progress);
 
     document.body.appendChild(toast);
     requestAnimationFrame(() => {
@@ -178,10 +231,35 @@ function processScreenshot(dataUrl, region) {
         z-index: 2147483647;
         min-width: 220px;
         overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
       .rsc-toast.visible { opacity: 1; transform: translateY(0) scale(1); }
       .rsc-toast.success { border-color: rgba(16, 185, 129, 0.55); box-shadow: 0 12px 32px rgba(16, 185, 129, 0.22); }
       .rsc-toast.warn { border-color: rgba(244, 144, 46, 0.6); box-shadow: 0 12px 32px rgba(244, 144, 46, 0.25); }
+      .rsc-toast-text { flex: 1; }
+      .rsc-toast-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+        transform: scale(0.86);
+        opacity: 0;
+        animation: rsc-icon-pop 200ms ease forwards;
+      }
+      .rsc-toast-icon.success { background: linear-gradient(135deg, #22c55e, #4ade80); }
+      .rsc-toast-icon.warn { background: linear-gradient(135deg, #fbbf24, #f97316); }
+      .rsc-toast-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke-dasharray: 26;
+        stroke-dashoffset: 26;
+        animation: rsc-check-draw 360ms ease forwards 100ms;
+      }
       .rsc-toast-progress {
         position: absolute;
         left: 0;
@@ -196,6 +274,14 @@ function processScreenshot(dataUrl, region) {
       @keyframes rsc-progress {
         from { transform: scaleX(1); }
         to { transform: scaleX(0); }
+      }
+      @keyframes rsc-icon-pop {
+        from { transform: scale(0.6); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+      @keyframes rsc-check-draw {
+        from { stroke-dashoffset: 26; }
+        to { stroke-dashoffset: 0; }
       }
     `;
     document.head.appendChild(style);
