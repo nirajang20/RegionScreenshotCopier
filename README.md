@@ -11,7 +11,8 @@ Region Screenshot Copier is ideal for users who frequently need to share visual 
 - **One-time region selection:** Set your preferred capture area once and reuse it as often as needed.
 - **Instant clipboard copy:** No need to manage files—just paste your screenshot wherever you need it.
 - **Customizable shortcut:** Default is `⌘ + ⇧ + 1` on Mac and `Ctrl + Shift + 1` on Windows, but you can change it in Chrome's extension shortcuts settings.
-- **Visual feedback:** Toast notifications confirm when your screenshot is successfully copied.
+- **Visual feedback:** Animated toasts confirm when your screenshot is successfully copied or if you need to reset your region.
+- **Interactive selection:** A guided overlay shows live dimensions, helps you cancel with `Esc`, and confirms when your region is saved.
 - **Privacy-first:** All processing happens locally in your browser; nothing is sent to external servers.
 - **Lightweight and unobtrusive:** Minimal permissions and a simple, intuitive interface.
 
@@ -26,7 +27,8 @@ GitHub repository: [https://github.com/nirajang20/RegionScreenshotCopier](https:
 * Set a **custom region** once and reuse it.
 * Capture the region with a **keyboard shortcut**: `Command + Shift + 1` (Mac) or `Ctrl + Shift + 1` (Windows/Linux).
 * **Copies directly to clipboard**; no files are saved.
-* **Toast notifications** confirm successful screenshot copy.
+* **Animated toasts** confirm when the screenshot is copied or if there is an issue.
+* **Guided overlay** with live dimension display; cancel with `Esc` anytime.
 * Works on **any normal webpage** (does not capture `chrome://` pages).
 * Lightweight and easy to use.
 
@@ -50,11 +52,17 @@ git clone https://github.com/nirajang20/RegionScreenshotCopier.git
 ## Usage
 
 1. Open any normal webpage (not `chrome://`).
-2. Click the extension icon → click **Set Region** → drag a box over the area you want to capture.
+2. Click the extension icon → click **Set / Update Region** → drag a box over the area you want to capture (you will see live dimensions).
 3. Close the popup.
 4. Press **⌘ + ⇧ + 1** (Mac) or **Ctrl + Shift + 1** (Windows/Linux) → the selected region is captured and copied to your clipboard.
 5. Paste anywhere to see your screenshot.
 6. You can reset the region anytime by repeating step 2.
+
+## Cross-Platform Tips
+
+- **Mac:** Default shortcut is `⌘ + ⇧ + 1`. You can change it under Chrome → Settings → Keyboard shortcuts for extensions.
+- **Windows/Linux:** Default shortcut is `Ctrl + Shift + 1`. You can customize it the same way to avoid conflicts with other tools.
+- If you try to capture a restricted page (like `chrome://`), the extension will show an in-page toast explaining what to do next.
 
 ---
 
@@ -83,3 +91,7 @@ RegionScreenshotCopier/
 ## License
 
 MIT License – free to use and modify.
+
+## Author
+
+[Niraj Ang](https://github.com/nirajang20)

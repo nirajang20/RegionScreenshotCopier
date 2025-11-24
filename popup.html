@@ -1,14 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Region Screenshot</title>
+  <title>Region Screenshot Copier</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h3>Region Screenshot Copier</h3>
-  <button id="setRegion">Set Region</button>
-  <button id="takeScreenshot">Take Screenshot</button>
-  <p>Shortcut: ⌘ + ⇧ + 1</p>
+  <div class="shell">
+    <header class="hero">
+      <div class="tag">Clipboard-first</div>
+      <h1>Region Screenshot Copier</h1>
+      <p>Set a region once, copy crisp snapshots anywhere.</p>
+      <div class="shortcut" id="shortcutDisplay">⌘ + ⇧ + 1</div>
+    </header>
+
+    <div class="actions">
+      <button id="setRegion" class="btn primary">
+        <span class="pulse"></span>
+        Set / Update Region
+      </button>
+      <button id="takeScreenshot" class="btn ghost">
+        Copy Current Region
+      </button>
+    </div>
+
+    <div class="status">
+      <div class="indicator" id="regionIndicator"></div>
+      <div class="status-copy">
+        <div id="regionStatus">No region saved yet.</div>
+        <small id="platformTip">Works great on Mac and Windows.</small>
+      </div>
+    </div>
+
+    <div class="tips">
+      <div class="tip">
+        <div class="tip-icon">TIP</div>
+        Drag over the page to set your capture area. Press Esc to cancel.
+      </div>
+      <div class="tip">
+        <div class="tip-icon">HOTKEY</div>
+        Use the shortcut from any tab; you'll get an animated toast when it copies.
+      </div>
+    </div>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>

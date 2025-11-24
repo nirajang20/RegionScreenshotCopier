@@ -18,22 +18,24 @@ function runRegionCapture() {
   if (now - lastCaptureTime < 500) return; // debounce
   lastCaptureTime = now;
 
-  chrome.storage.local.get(["region"], (result) => {
-    if (!result.region) {
-      console.warn("Set a region first!");
-      return;
-    }
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tab = tabs[0];
+    chrome.storage.local.get(["region"], (result) => {
+      if (!tab) return;
 
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const tab = tabs[0];
-      if (!tab || tab.url.startsWith("chrome://") || tab.url.startsWith("chrome-extension://")) {
-        console.warn("Cannot capture this page type.");
+      if (!result.region) {
+        injectToast(tab.id, "Set a region from the extension popup, then try again.", "warn");
+        return;
+      }
+
+      if (tab.url.startsWith("chrome://") || tab.url.startsWith("chrome-extension://")) {
+        injectToast(tab.id, "Cannot capture this page type. Try a normal webpage.", "warn");
         return;
       }
 
       chrome.tabs.captureVisibleTab(tab.windowId, { format: "png" }, (dataUrl) => {
         if (!dataUrl) {
-          console.error("Capture failed");
+          injectToast(tab.id, "Capture failed. Refresh the tab and retry.", "warn");
           return;
         }
 
@@ -44,6 +46,71 @@ function runRegionCapture() {
         });
       });
     });
+  });
+}
+
+function injectToast(tabId, message, tone = "info") {
+  chrome.scripting.executeScript({
+    target: { tabId },
+    func: (msg, t) => {
+      renderToast(msg, t);
+      function renderToast(text, tone) {
+        ensureToastStyles();
+        const toast = document.createElement("div");
+        toast.className = `rsc-toast ${tone}`;
+        toast.textContent = text;
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add("visible"));
+        setTimeout(() => toast.classList.remove("visible"), 1800);
+        setTimeout(() => toast.remove(), 2400);
+      }
+      function ensureToastStyles() {
+        if (document.getElementById("__rsc_toast_styles")) return;
+        const style = document.createElement("style");
+        style.id = "__rsc_toast_styles";
+        style.textContent = `
+          .rsc-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font: 600 14px/1.2 "Inter", "Segoe UI", sans-serif;
+            color: #0f172a;
+            background: #fff;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+            opacity: 0;
+            transform: translateY(12px) scale(0.98);
+            transition: opacity 200ms ease, transform 200ms ease;
+            z-index: 2147483647;
+            min-width: 220px;
+            overflow: hidden;
+          }
+          .rsc-toast.visible { opacity: 1; transform: translateY(0) scale(1); }
+          .rsc-toast.success { border-color: rgba(16, 185, 129, 0.55); box-shadow: 0 12px 32px rgba(16, 185, 129, 0.22); }
+          .rsc-toast.info { border-color: rgba(102, 166, 255, 0.55); box-shadow: 0 12px 32px rgba(102, 166, 255, 0.25); }
+          .rsc-toast.warn { border-color: rgba(244, 144, 46, 0.6); box-shadow: 0 12px 32px rgba(244, 144, 46, 0.25); }
+          .rsc-toast-progress {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 3px;
+            width: 100%;
+            background: linear-gradient(90deg, #66a6ff, #89f7fe);
+            transform: scaleX(0);
+            transform-origin: left;
+          }
+          .rsc-toast-progress.animate { animation: rsc-progress 1800ms ease forwards; }
+          @keyframes rsc-progress {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    },
+    args: [message, tone]
   });
 }
 
@@ -61,36 +128,76 @@ function processScreenshot(dataUrl, region) {
     canvas.toBlob(async (blob) => {
       try {
         await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-        showToast("📸 Screenshot copied ✅");
+        renderToast("Screenshot copied to clipboard", "success");
       } catch (err) {
-        showToast("Clipboard write failed ✖");
+        renderToast("Clipboard write was blocked. Check permissions.", "warn");
         console.error(err);
       }
     }, "image/png");
   };
   img.src = dataUrl;
 
-  function showToast(msg) {
-    const t = document.createElement("div");
-    t.innerText = msg;
-    Object.assign(t.style, {
-      position: "fixed",
-      bottom: "20px",
-      right: "20px",
-      background: "rgba(0,0,0,0.85)",
-      color: "#fff",
-      padding: "10px 16px",
-      borderRadius: "8px",
-      fontSize: "14px",
-      zIndex: 2147483647,
-      opacity: 0,
-      transition: "opacity 0.3s ease"
+  function renderToast(text, tone = "success") {
+    ensureToastStyles();
+    const toast = document.createElement("div");
+    toast.className = `rsc-toast ${tone}`;
+    toast.textContent = text;
+
+    const progress = document.createElement("div");
+    progress.className = "rsc-toast-progress";
+    toast.appendChild(progress);
+
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => {
+      toast.classList.add("visible");
+      progress.classList.add("animate");
     });
-    document.body.appendChild(t);
-    requestAnimationFrame(() => (t.style.opacity = 1));
-    setTimeout(() => {
-      t.style.opacity = 0;
-      setTimeout(() => t.remove(), 500);
-    }, 1800);
+    setTimeout(() => toast.classList.remove("visible"), 2000);
+    setTimeout(() => toast.remove(), 2600);
+  }
+
+  function ensureToastStyles() {
+    if (document.getElementById("__rsc_toast_styles")) return;
+    const style = document.createElement("style");
+    style.id = "__rsc_toast_styles";
+    style.textContent = `
+      .rsc-toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        font: 600 14px/1.2 "Inter", "Segoe UI", sans-serif;
+        color: #0f172a;
+        background: #fff;
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+        transition: opacity 200ms ease, transform 200ms ease;
+        z-index: 2147483647;
+        min-width: 220px;
+        overflow: hidden;
+      }
+      .rsc-toast.visible { opacity: 1; transform: translateY(0) scale(1); }
+      .rsc-toast.success { border-color: rgba(16, 185, 129, 0.55); box-shadow: 0 12px 32px rgba(16, 185, 129, 0.22); }
+      .rsc-toast.warn { border-color: rgba(244, 144, 46, 0.6); box-shadow: 0 12px 32px rgba(244, 144, 46, 0.25); }
+      .rsc-toast-progress {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 3px;
+        width: 100%;
+        background: linear-gradient(90deg, #66a6ff, #89f7fe);
+        transform: scaleX(0);
+        transform-origin: left;
+      }
+      .rsc-toast-progress.animate { animation: rsc-progress 1800ms ease forwards; }
+      @keyframes rsc-progress {
+        from { transform: scaleX(1); }
+        to { transform: scaleX(0); }
+      }
+    `;
+    document.head.appendChild(style);
   }
 }
