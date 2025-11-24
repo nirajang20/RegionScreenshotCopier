@@ -94,4 +94,4 @@ MIT License – free to use and modify.
 
 ## Author
 
-[Niraj Ang](https://github.com/nirajang20)
+[NirajanG](https://github.com/nirajang20)
